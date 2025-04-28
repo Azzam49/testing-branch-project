@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group input {
+      width: calc(100% - 22px);
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .input-group button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #6c63ff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .input-group button:hover {
+      background-color: #5a51e0;
+    }
+
+    .weather-info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      border-left: 5px solid #6c63ff;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .weather-info:hover {
+      transform: scale(1.02);
+    }
+
+    .weather-info h2 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #444;
+    }
+
+    .weather-info p {
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .error {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Weather App</h1>
+  
+  <!-- Container -->
+  <div class="container">
+    <!-- Input Group -->
+    <div class="input-group">
+      <input type="text" id="city-input" placeholder="Enter your city" />
+      <button id="fetch-weather" onclick="fetchWeather()">Get Weather</button>
+    </div>
+
+    <!-- Weather Display -->
+    <div id="weather-container">
+      
+
+    </div>
+  </div>
+
+  <script>
+
+    function fetchWeather(){
+
+      const city = document.getElementById("city-input").value
+      const container = document.getElementById("weather-container");
+
+      // alert(city)
+
+      // if(city !=== undefined && city !== null && city !== "")
+      if(!city){
+        // const p = document.createElement("p")
+        // p.textContent = "Please enter a city name!"
+        // container.appendChild(p)
+
+        container.innerHTML = `<p class="error">Please enter a city name!</p>`;
+        return;
+      }
+
+
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=29b86fc3f8063aac44990b253ad944c5&units=metric`
+
+      // alert(url)
+
+      fetch(url).then(
+        function(response){
+          console.log("response", response)
+
+          if(response.ok === false){
+            throw new Error("Network response was not ok: " + response.status);
+          }
+
+          return response.json()
+        }
+      ).then(function(data){
+        console.log("data", data)
+
+        container.innerHTML = `
+          <div class="weather-info">
+              <h2>${city}</h2>
+              <p>Temperature: ${data.main.temp}</p>
+              <p>Weather: ${data.weather[0].description}</p>
+          </div>
+        `
+        
+      }
+      ).catch(function(error){
+        container.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+      })
+
+    }
+   
+  </script>
+</body>
+</html>
+
+
+
+
+

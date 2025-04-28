@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD App</title>
+  <!-- Import SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #6c63ff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #5a51e0;
+    }
+
+    .post {
+      background: #f9f9f9;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #6c63ff;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .post:hover {
+      transform: scale(1.02);
+    }
+
+    .post h2 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #444;
+    }
+
+    .post p {
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .error {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CRUD App</h1>
+
+  <!-- Form to Add/Edit Posts -->
+  <div class="container">
+    <form id="post-form">
+      <input type="text" id="title" placeholder="Title" required />
+      <textarea id="body" placeholder="Body" required></textarea>
+      <button type="submit">Add Post</button>
+    </form>
+
+    <!-- Container for Posts -->
+    <div id="posts-container"></div>
+  </div>
+
+  <!-- Import SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const apiUrl = "https://jsonplaceholder.typicode.com/posts";
+    const container = document.getElementById("posts-container");
+    const form = document.getElementById("post-form");
+
+    // Fetch and display posts
+    function fetchPosts() {
+      container.innerHTML = "<p>Loading posts...</p>";
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) throw new Error("Failed to fetch posts");
+          return response.json();
+        })
+        .then(posts => {
+          container.innerHTML = ""; // Clear loading message
+          posts.forEach(post => {
+            const postDiv = document.createElement("div");
+            postDiv.className = "post";
+            postDiv.innerHTML = `
+              <h2>${post.title}</h2>
+              <p>${post.body}</p>
+              <button onclick="editPost(${post.id})">Edit</button>
+              <button onclick="deletePost(${post.id})">Delete</button>
+            `;
+            container.appendChild(postDiv);
+          });
+        })
+        .catch(error => {
+          container.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+        });
+    }
+
+    // Add a new post
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const title = document.getElementById("title").value.trim();
+      const body = document.getElementById("body").value.trim();
+
+      if (!title || !body) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Please fill in both fields!',
+        });
+        return;
+      }
+
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, body, userId: 1 }),
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Failed to create post");
+          return response.json();
+        })
+        .then(() => {
+          form.reset(); // Clear form fields
+          fetchPosts(); // Refresh posts list
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Post created successfully!',
+          });
+        })
+        .catch(error => {
+          console.error("Error:", error.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to create post!',
+          });
+        });
+    });
+
+    // Edit a post
+    function editPost(id) {
+      const newTitle = prompt("Enter new title:");
+      const newBody = prompt("Enter new body:");
+
+      if (!newTitle || !newBody) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Please provide both title and body!',
+        });
+        return;
+      }
+
+      fetch(`${apiUrl}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, title: newTitle, body: newBody, userId: 1 }),
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Failed to update post");
+          return response.json();
+        })
+        .then(() => {
+          fetchPosts(); // Refresh posts list
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Post updated successfully!',
+          });
+        })
+        .catch(error => {
+          console.error("Error:", error.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update post!',
+          });
+        });
+    }
+
+    // Delete a post
+    function deletePost(id) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`${apiUrl}/${id}`, { method: "DELETE" })
+            .then(response => {
+              if (!response.ok) throw new Error("Failed to delete post");
+              return response.json();
+            })
+            .then(() => {
+              fetchPosts(); // Refresh posts list
+              Swal.fire(
+                'Deleted!',
+                'Your post has been deleted.',
+                'success'
+              );
+            })
+            .catch(error => {
+              console.error("Error:", error.message);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to delete post!',
+              });
+            });
+        }
+      });
+    }
+
+    // Initial fetch
+    fetchPosts();
+  </script>
+</body>
+</html>

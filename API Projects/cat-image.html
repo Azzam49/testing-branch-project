@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        /* Button Styling */
+        button {
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e55c51;
+        }
+
+        /* Image Container Styling */
+        #cat-image-container {
+            margin-top: 30px;
+        }
+
+        #cat-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading Text Styling */
+        #loading {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Random Cat Image Generator</h1>
+    <button onclick="getRandomCatImage()">Get Random Cat</button>
+
+    <div id="cat-image-container">
+        <!-- The cat image will appear here -->
+         <!-- <img src="https://cdn2.thecatapi.com/images/57h.jpg"> -->
+    </div>
+
+    <script>
+
+        function getRandomCatImage(){
+            
+            const apiUrl = "https://api.thecatapi.com/v1/images/search"
+
+            const container = document.getElementById("cat-image-container")
+
+            fetch(apiUrl)
+            .then(response => {
+                
+                // convert response JSON data to Javascript array/oject
+                return response.json()
+            })
+            .then(data => {
+                // data is Javascript Array
+                // console.log(data)
+
+                // data = [
+                //     {
+                //         "id": "57h",
+                //         "url": "https://cdn2.thecatapi.com/images/57h.jpg",
+                //         "width": 500,
+                //         "height": 334
+                //     }
+                // ]
+                const imageUrl = data[0].url
+                // console.log(imageUrl)
+
+                container.innerHTML = `<img src="${imageUrl}">`
+            })
+            .catch(error => {
+                container.innerHTML = `<h1>Sorry API is not working at the moment, try again later!</h1>`
+            })
+        }
+
+    </script>
+</body>
+</html>

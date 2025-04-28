@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagination & Filtering</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .post {
+      background: #f9f9f9;
+      margin: 10px auto;
+      padding: 15px;
+      width: 80%;
+      border-radius: 5px;
+      border: 2px solid black;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Posts with Pagination</h1>
+
+  <div class="controls">
+    <button id="prev-page" onclick="fetchPreviousPosts()">Previous</button>
+
+    <span id="page-info">Page 1</span>
+
+    <button id="next-page" onclick="fetchNextPosts()">Next</button>
+  </div>
+
+  <div id="posts-container">
+
+  </div>
+
+  <script>
+
+    let currentPage = 1;
+    const postsPerPage = 5;
+   
+
+    function fetchPosts(){
+      // We will call the posts API
+      // based on currentPage
+
+      const url = `https://jsonplaceholder.typicode.com/posts?_page=${currentPage}&_limit=${postsPerPage}`
+
+      const container = document.getElementById("posts-container");
+
+
+
+
+      container.innerHTML = "<p>Loading...</p>";
+
+
+
+      fetch(url)
+      .then(function(res){
+        // check if response was ok
+        if(res.ok === false){
+            throw new Error("Network response was not ok: " + res.status);
+          }
+
+
+        // return converted json response to array/object
+        return res.json()
+      })
+      .then(function(posts){
+         container.innerHTML = "";
+
+        // consume the json data
+        console.log(posts)
+
+        // (5) [{...}, {...}, {...}, {...}, {...}]
+        // Regular function
+        // posts.forEach(function(post){
+
+        // })
+
+        // Arrow function
+        posts.forEach(post => {
+
+    //       <div class="post">
+    //   <h2>Coding</h2>
+    //   <p>Learning HTML CSS...</p>
+    // </div>
+
+          const postDiv = document.createElement("div")
+          postDiv.className = "post";
+          postDiv.innerHTML = `
+          <h2>${post.id}</h2>
+          <h2>${post.title}</h2>
+          <p>${post.body}</p>
+          `
+          container.appendChild(postDiv);
+
+        })
+
+      })
+      .catch(function(error){
+        // catch any error that may occur on any of the steps
+        container.innerHTML = `<p class="error">Error: ${error.message}</p>`
+      })
+
+    }
+
+
+    // const fetchPreviousPosts() => {
+
+    // }
+
+    function fetchPreviousPosts(){
+
+      if(currentPage > 1){
+          currentPage--;
+        console.log("currentPage --", currentPage)
+        document.getElementById("page-info").textContent = `Page : ${currentPage}`
+        // we execute fetchPosts for previous page
+        fetchPosts()
+      }
+      
+
+    }
+
+    function fetchNextPosts(){
+
+      currentPage++;
+      console.log("currentPage ++", currentPage)
+      document.getElementById("page-info").textContent = `Page : ${currentPage}`
+      // we execute fetchPosts for next page
+      fetchPosts()
+    }
+
+    console.log("currentPage START", currentPage)
+    fetchPosts();
+
+  </script>
+</body>
+</html>
+
+
+
+
